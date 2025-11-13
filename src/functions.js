@@ -4,8 +4,6 @@ export function formatDate(date) {
   const year = date.split("-")[0];
   const month = Number(date.split("-")[1]);
   const day = date.split("-")[2];
-  console.log(year,month,day);
-  
 
   const months = [
     "",
@@ -23,5 +21,5 @@ export function formatDate(date) {
     "Dec", // December
   ];
 
-  return `${day} ${months[month]} ${year}`
+  return `${day} ${months[month]} ${year}`;
 }
