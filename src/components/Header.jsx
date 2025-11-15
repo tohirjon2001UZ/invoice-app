@@ -1,9 +1,12 @@
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Checkbox } from "./ui/checkbox";
+import AddElementSheet from "./AddElementSheet";
 
 export default function Header({ total, filterElement, setFilterElement }) {
   const [open, setOpen] = useState(false);
+  const list=useRef()
+  const button=useRef()
 
   function handleClick() {
     setOpen(!open);
@@ -31,13 +34,14 @@ export default function Header({ total, filterElement, setFilterElement }) {
         </div>
         <div className="relative">
           <button
-            className="inline-flex items-center gap-1 hover:bg-muted py-2 px-4 rounded-md"
+          ref={button}
+            className="inline-flex items-center gap-1 hover:bg-muted py-2 px-4 rounded-md mr-3"
             onClick={handleClick}
           >
             Filter by status {open ? <ArrowUp /> : <ArrowDown />}
           </button>
           {open && (
-            <div className="flex flex-col gap-1 absolute p-2 rounded-md shadow min-w-[180px] bg-white top-12">
+            <div ref={list} className="flex flex-col gap-1 absolute p-2 rounded-md shadow min-w-[180px] bg-white top-12">
               {filterElement.map((el) => {
                 return (
                   <span
@@ -53,6 +57,7 @@ export default function Header({ total, filterElement, setFilterElement }) {
               })}
             </div>
           )}
+          <AddElementSheet/>
         </div>
       </div>
     </header>

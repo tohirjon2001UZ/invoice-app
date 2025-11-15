@@ -24,24 +24,28 @@ export default function Home() {
   ]);
 
   useEffect(() => {
-    const checkedCount = filterElement
-      .map((el) => el.checked)
-      .filter((el) => el).length;
-    const result = filterElement.map((el) => {
-      if (el.checked) {
-        return checkedCount === 1 ? el.text : `|${el.text}`;
-      } else {
-        return "";
-      }
-    });
+    const result = filterElement
+      .map((el) => {
+        if (el.checked) {
+          return `|${el.text}`;
+        } else {
+          return "";
+        }
+      })
+      .join("")
+      .slice(1);
 
-    setFilter(result)
+    setFilter(result);
   }, [JSON.stringify(filterElement)]);
 
   useEffect(() => {
     setLoading(true);
 
-    fetch("https://json-api.uz/api/project/invoice-app-fn43/invoices")
+    fetch(
+      `https://json-api.uz/api/project/invoice-app-fn43/invoices${
+        filter !== "" ? `?status=${filter}` : filter
+      }`
+    )
       .then((res) => res.json())
       .then((res) => {
         setInvoices(res.data);
@@ -52,7 +56,7 @@ export default function Home() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [filter]);
   return (
     <div>
       <Header
