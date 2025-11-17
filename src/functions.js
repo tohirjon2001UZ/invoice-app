@@ -23,3 +23,23 @@ export function formatDate(date) {
 
   return `${day} ${months[month]} ${year}`;
 }
+
+
+export function objFormatter(obj) {
+  const result = Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => {
+      if (key.includes(".")) {
+        const piece = key.split(".");
+        const objValue = {
+          [piece[1]]: value,
+        };
+
+        return [piece[0], objValue];
+      } else {
+        return [key, value];
+      }
+    })
+  );
+
+  console.log(result);
+}

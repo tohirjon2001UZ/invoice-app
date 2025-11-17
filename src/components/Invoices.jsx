@@ -1,8 +1,6 @@
 import InvoiceCard from "./InvoiceCard";
 
-export default function Invoices({invoices, error, loading}) {
-
-
+export default function Invoices({ invoices, error, loading }) {
   if (loading) {
   }
   if (error) {
