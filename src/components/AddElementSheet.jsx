@@ -12,13 +12,11 @@ import { buttonVariants } from "./ui/button";
 import { PlusCircleIcon, Trash } from "lucide-react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-
-("use client");
-
-import { ChevronDownIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 
+("use client");
+import { ChevronDownIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -35,13 +33,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { formValidation, objFormatter } from "../functions";
+import { toast } from "sonner";
 
-import { objFormatter } from "../functions";
-
-export default function AddElementSheet() {
+export default function AddElementSheet({ setInvoices }) {
+  const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState(undefined);
+
+  function sendData(data) {
+    setLoading(true);
+    fetch(`https://json-api.uz/api/project/invoice-app-fn43/invoices`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        toast.success("Backendga ma'lumot muvaffaqiyatli qo'shildi");
+        setInvoices((prev) => {
+          return [res, ...prev];
+        });
+      })
+      .catch(() => {
+        toast.error("Backendga ma'lumot jo'natishda xatolik yuz berdi");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
 
   function handleItems(id, key, value) {
     const updatedElement = items.find((el) => el.id === id);
@@ -71,12 +96,27 @@ export default function AddElementSheet() {
     formData.forEach((value, key) => {
       result[key] = value;
     });
-    result.status = evt.nativeEvent.submitter.id;
+    result.elId = window.crypto.randomUUID();
+    result.status = event.submitter.id;
+    result.items = items;
+    result.paymentDue = date;
+    result.total = items.reduce((acc, el) => {
+      return (acc += el.total);
+    }, 0);
 
-    objFormatter(result);
+    const check = formValidation(result);
+
+    if (check && result.status === "pending") {
+      const { message, target } = check;
+      evt.target[target]?.focus();
+      toast.error(message);
+    } else {
+      const readyData = objFormatter(result);
+      sendData(readyData);
+    }
   }
   return (
-     <Sheet>
+    <Sheet>
       <SheetTrigger
         className={`${buttonVariants({ variant: "default" })} rounded-full!`}
       >
