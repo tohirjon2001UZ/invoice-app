@@ -1,5 +1,3 @@
-import { Split } from "lucide-react";
-
 export function formatDate(date) {
   const year = date?.split("-")[0];
   const month = Number(date?.split("-")[1]);

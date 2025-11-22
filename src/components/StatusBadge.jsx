@@ -20,8 +20,14 @@ export default function StatusBadge({ status = "draft" }) {
     <span
       className={`inline-flex items-center justify-center gap-2 py-3 px-[18px] rounded-md min-w-[104px] ${styles[status].bg}`}
     >
-      <span className={`w-2 h-2 inline-block rounded-full ${styles[status].dot}`}></span>
-      <span className={`capitalize font-medium text-[12px] ${styles[status].text}`}>{status}</span>
+      <span
+        className={`w-2 h-2 inline-block rounded-full ${styles[status].dot}`}
+      ></span>
+      <span
+        className={`capitalize font-medium text-[12px] ${styles[status].text}`}
+      >
+        {status}
+      </span>
     </span>
   );
 }

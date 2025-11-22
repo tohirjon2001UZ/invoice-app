@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/sheet";
 
 import { buttonVariants } from "./ui/button";
-import { PlusCircleIcon, Trash } from "lucide-react";
+import { Pen, PlusCircleIcon, Trash } from "lucide-react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "./ui/calendar";
 
 ("use client");
 import { ChevronDownIcon } from "lucide-react";
@@ -36,16 +36,16 @@ import {
 import { formValidation, objFormatter } from "../functions";
 import { toast } from "sonner";
 
-export default function AddElementSheet({ setInvoices }) {
+export default function EditElementSheet({invoice, setInvoice}) {
   const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(invoice.items);
   const [open, setOpen] = useState(false);
-  const [date, setDate] = useState(undefined);
+  const [date, setDate] = useState(new Date(invoice.paymentDue));
 
   function sendData(data) {
     setLoading(true);
-    fetch(`https://json-api.uz/api/project/invoice-app-fn43/invoices`, {
-      method: "POST",
+    fetch(`https://json-api.uz/api/project/invoice-app-fn43/invoices/${invoice.id}`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
@@ -55,10 +55,8 @@ export default function AddElementSheet({ setInvoices }) {
         return res.json();
       })
       .then((res) => {
-        toast.success("Backendga ma'lumot muvaffaqiyatli qo'shildi");
-        setInvoices((prev) => {
-          return [res, ...prev];
-        });
+        setInvoice(res)
+        toast.success("Ma'lumot muvaffaqiyatli yangilandi");
       })
       .catch(() => {
         toast.error("Backendga ma'lumot jo'natishda xatolik yuz berdi");
@@ -96,8 +94,6 @@ export default function AddElementSheet({ setInvoices }) {
     formData.forEach((value, key) => {
       result[key] = value;
     });
-    result.elId = window.crypto.randomUUID();
-    result.status = event.submitter.id;
     result.items = items;
     result.paymentDue = date;
     result.total = items.reduce((acc, el) => {
@@ -106,8 +102,8 @@ export default function AddElementSheet({ setInvoices }) {
 
     const check = formValidation(result);
 
-    if (check && result.status === "pending") {
-      const { message, target } = check;
+    if (check) {
+      const { target, message } = check;
       evt.target[target]?.focus();
       toast.error(message);
     } else {
@@ -115,17 +111,18 @@ export default function AddElementSheet({ setInvoices }) {
       sendData(readyData);
     }
   }
+
   return (
     <Sheet>
       <SheetTrigger
-        className={`${buttonVariants({ variant: "default" })} rounded-full!`}
+        className={`${buttonVariants({ variant: "secondary" })} rounded-md!`}
       >
-        <PlusCircleIcon /> New Invoice
+        <Pen/> Edit
       </SheetTrigger>
       <SheetContent className="h-[85vh]" side="bottom">
         <SheetHeader>
-          <SheetTitle>New Invoice</SheetTitle>
-          <SheetDescription>Add a new element</SheetDescription>
+          <SheetTitle>Edit {invoice.elId}</SheetTitle>
+          <SheetDescription>Edit element</SheetDescription>
         </SheetHeader>
 
         <div className="pt-10 pb-24 px-5 h-full overflow-y-scroll">
@@ -138,6 +135,7 @@ export default function AddElementSheet({ setInvoices }) {
                 <Label htmlFor="senderAddress.street">Street Address</Label>
                 <Input
                   type="text"
+                  defaultValue={invoice.senderAddress.street}
                   id="senderAddress.street"
                   name="senderAddress.street"
                 />
@@ -147,6 +145,7 @@ export default function AddElementSheet({ setInvoices }) {
                   <Label htmlFor="senderAddress.city">City</Label>
                   <Input
                     type="text"
+                    defaultValue={invoice.senderAddress.city}
                     id="senderAddress.city"
                     name="senderAddress.city"
                   />
@@ -155,6 +154,7 @@ export default function AddElementSheet({ setInvoices }) {
                   <Label htmlFor="senderAddress.postCode">Post Code</Label>
                   <Input
                     type="text"
+                    defaultValue={invoice.senderAddress.postCode}
                     id="senderAddress.postCode"
                     name="senderAddress.postCode"
                   />
@@ -163,6 +163,7 @@ export default function AddElementSheet({ setInvoices }) {
                   <Label htmlFor="senderAddress.country">Country</Label>
                   <Input
                     type="text"
+                    defaultValue={invoice.senderAddress.country}
                     id="senderAddress.country"
                     name="senderAddress.country"
                   />
@@ -173,12 +174,13 @@ export default function AddElementSheet({ setInvoices }) {
               <legend className="font-bold text-[#7C5DFA] mb-5">Bill To</legend>
               <div className="grid w-full  items-center gap-3 mb-5">
                 <Label htmlFor="clientName">Client's Name</Label>
-                <Input type="text" id="clientName" name="clientName" />
+                <Input type="text" id="clientName" defaultValue={invoice.clientName} name="clientName" />
               </div>
               <div className="grid w-full  items-center gap-3 mb-5">
                 <Label htmlFor="clientEmail">Client's Email</Label>
                 <Input
                   type="email"
+                  defaultValue={invoice.clientEmail}
                   id="clientEmail"
                   name="clientEmail"
                   placeholder="e.g. email@example.com"
@@ -188,6 +190,7 @@ export default function AddElementSheet({ setInvoices }) {
                 <Label htmlFor="clientAddress.street">Street Address</Label>
                 <Input
                   type="text"
+                  defaultValue={invoice.clientAddress.street}
                   id="clientAddress.street"
                   name="clientAddress.street"
                 />
@@ -197,6 +200,7 @@ export default function AddElementSheet({ setInvoices }) {
                   <Label htmlFor="clientAddress.city">City</Label>
                   <Input
                     type="text"
+                    defaultValue={invoice.clientAddress.city}
                     id="clientAddress.city"
                     name="clientAddress.city"
                   />
@@ -205,6 +209,7 @@ export default function AddElementSheet({ setInvoices }) {
                   <Label htmlFor="clientAddress.postCode">Post Code</Label>
                   <Input
                     type="text"
+                    defaultValue={invoice.clientAddress.postCode}
                     id="clientAddress.postCode"
                     name="clientAddress.postCode"
                   />
@@ -213,6 +218,7 @@ export default function AddElementSheet({ setInvoices }) {
                   <Label htmlFor="clientAddress.country">Country</Label>
                   <Input
                     type="text"
+                    defaultValue={invoice.clientAddress.country}
                     id="clientAddress.country"
                     name="clientAddress.country"
                   />
@@ -257,7 +263,7 @@ export default function AddElementSheet({ setInvoices }) {
                 {/* Select */}
                 <div className="grid w-full  items-center gap-3 mb-5">
                   <Label htmlFor="paymentTerms">Country</Label>
-                  <Select id="paymentTerms" name="paymentTerms">
+                  <Select id="paymentTerms" name="paymentTerms" defaultValue={invoice.paymentTerms.toString()}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a term" />
                     </SelectTrigger>
@@ -276,7 +282,7 @@ export default function AddElementSheet({ setInvoices }) {
 
               <div className="grid w-full  items-center gap-3 mb-5">
                 <Label htmlFor="description">Project Description</Label>
-                <Input type="text" id="description" name="description" />
+                <Input type="text" id="description" name="description" defaultValue={invoice.description}/>
               </div>
             </fieldset>
 
@@ -289,16 +295,8 @@ export default function AddElementSheet({ setInvoices }) {
                 Discard
               </SheetClose>
               <div className="flex gap-5 mr-10">
-                <Button
-                  disabled={loading}
-                  id="draft"
-                  variant="secondary"
-                  type="submit"
-                >
-                  Save as Draft
-                </Button>
-                <Button disabled={loading} id="pending" type="submit">
-                  Save & Send
+                <Button disabled={loading} type="submit">
+                  Save
                 </Button>
               </div>
             </div>
